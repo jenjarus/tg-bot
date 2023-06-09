@@ -1,85 +1,137 @@
 require('dotenv').config();
-const TelegramBot = require('node-telegram-bot-api');
-const token = process.env.TOKEN_KEY;
-const bot = new TelegramBot(token, { polling: true });
+const {Telegraf, Markup} = require('telegraf');
+const bot = new Telegraf(process.env.TOKEN_KEY);
 
-let notes = [];
-const keyboard = [
-    [
-        {
-            text: 'Хочу горы и реку',
-            callback_data: 'moreKeks'
-        }
-    ],
-    [
-        {
-            text: 'Хочу горы и луга',
-            callback_data: 'morePes'
-        }
-    ]
-];
-
-
-bot.on('callback_query', (query) => {
-    const chatId = query.message.chat.id;
-    let img = '';
-
-    if (query.data === 'moreKeks') {
-        img = 'https://www.sunhome.ru/i/wallpapers/163/alberta-banf-kanada.orig.jpg';
+bot.start((ctx) => {
+    const chatName = ctx.message.from.first_name ? ctx.message.from.first_name : ctx.message.from.username;
+    ctx.reply(`Привет, ${chatName}! Я телеграм-бот. Я могу отправлять случайные изображения и многое другое!
+---
+Чтобы получить случайное изображение, напишите /img.
+---
+Чтобы создать напоминание, напишите /remind в формате "чч:мм текст".
+Например, чтобы создать напоминание на 15:30 с текстом "Позвонить маме", напишите "/remind 15:30 Позвонить маме".
+---
+Чтобы создать напоминание для другого числа, напишите /remindday в формате "дд.мм.гггг чч:мм текст".
+Например, чтобы создать напоминание на 15 июня 2023 года в 15:30 с текстом “Позвонить маме”, напишите “/remindday 15.06.2023 15:30 Позвонить маме”.
+`, Markup.keyboard([
+        ['📘 Открыть Github', '📃 Открыть Google'],
+        ['🏆 Открыть мою страницу Github'],
+        ['🎯 Открыть VK', '🎬 Открыть Youtube']
+    ]).oneTime().resize());
+});
+bot.help((ctx) => ctx.reply('Это помощь.'));
+bot.telegram.setMyCommands([
+    {
+        command: 'img',
+        description: 'отправка случайного изображения',
+    },
+    {
+        command: 'remind',
+        description: 'Чтобы получить напоминание в 14:30 с текстом “Встреча”, отправьте сообщение /remind 14:30 Встреча',
+    },
+    {
+        command: 'remindday',
+        description: 'чтобы создать напоминание на 15 июня 2023 года в 15:30 с текстом “Позвонить маме”, напишите “/remindday 15.06.2023 15:30 Позвонить маме”',
     }
+]);
 
-    if (query.data === 'morePes') {
-        img = 'https://catherineasquithgallery.com/uploads/posts/2021-02/1612678074_74-p-kartinka-fon-zelenii-lug-125.jpg';
-    }
-
-    if (img) {
-        bot.sendPhoto(chatId, img, { // прикрутим клаву
-            reply_markup: {
-                inline_keyboard: keyboard
-            }
-        });
-    } else {
-        bot.sendMessage(chatId, 'Непонятно, давай попробуем ещё раз?', {
-            reply_markup: {
-                inline_keyboard: keyboard
-            }
-        });
-    }
+bot.hears('📘 Открыть Github', (ctx) => {
+    ctx.reply('Выберите вариант', Markup.inlineKeyboard([
+        [
+            Markup.button.url('Github', 'https://github.com/'),
+        ],
+        [
+            Markup.button.url('Моя страница Github', 'https://github.com/jenjarus'),
+        ]
+    ]))
 });
 
-bot.onText(/remind (.+) в (.+)/, function (msg, match) {
-    const userId = msg.from.id;
-    const text = match[1];
-    const time = match[2];
-
-    notes.push({ 'uid': userId, 'time': time, 'text': text });
-
-    bot.sendMessage(userId, 'Отлично! Я обязательно напомню :)');
+bot.hears('🏆 Открыть мою страницу Github', (ctx) => {
+    ctx.reply('Открыть мою страницу Github', Markup.inlineKeyboard([
+        Markup.button.url('Моя страница Github', 'https://github.com/jenjarus')
+    ]))
 });
 
-bot.onText(/start/, (query) => {
-    const chatId = query.chat.id;
-    const chatName = query.chat.first_name ? query.chat.first_name : query.chat.username;
-
-    bot.sendMessage(chatId, `Привет, ${chatName}! чего хочешь?`, {
-        reply_markup: {
-            inline_keyboard: keyboard
-        }
-    });
+bot.hears('🎯 Открыть VK', (ctx) => {
+    ctx.reply('Открыть VK', Markup.inlineKeyboard([
+        Markup.button.url('VK', 'https://vk.com/')
+    ]))
 });
 
-setInterval(function(){
-    for (let i = 0; i < notes.length; i++) {
-        const curDate = new Date().getHours() + ':' + new Date().getMinutes();
-        if (notes[i]['time'] === curDate) {
-            bot.sendMessage(notes[i]['uid'], 'Напоминаю, что вы должны: '+ notes[i]['text'] + ' сейчас.');
-            notes.splice(i, 1);
-        }
+bot.hears('🎬 Открыть Youtube', (ctx) => {
+    ctx.reply('Открыть Youtube', Markup.inlineKeyboard([
+        Markup.button.url('Youtube', 'https://youtube.com/')
+    ]))
+});
+
+bot.hears('📃 Открыть Google', (ctx) => {
+    ctx.reply('Открыть Google', Markup.inlineKeyboard([
+        Markup.button.url('Google', 'https://google.com/')
+    ]))
+});
+
+
+// Теперь вы можете использовать команду /remind для создания напоминания.
+// Например, если вы хотите получить напоминание в 14:30 с текстом “Встреча”, отправьте сообщение /remind 14:30 Встреча.
+
+bot.command('remind', (ctx) => {
+    const [time, ...text] = ctx.message.text.split('/remind ')[1].split(' ');
+    const [hours, minutes] = time.split(':');
+
+    const now = new Date();
+    const remindTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+
+    if (remindTime < now) {
+        ctx.reply('Вы указали прошедшее время. Пожалуйста, укажите будущее время.');
+        return;
     }
-}, 1000);
 
-bot.onText(/\/echo(.+)/, (msg, match) => {
-    const chatId = msg.chat.id;
-    const resp = match[1];
-    bot.sendMessage(chatId,resp);
+    setTimeout(() => {
+        ctx.reply(`Напоминаю: ${text.join(' ')}`);
+    }, remindTime - now);
+
+    ctx.reply('Отлично! Я обязательно напомню :)');
 });
+
+// Теперь вы можете использовать команду /remindday в формате “дд.мм.гггг чч:мм текст” для создания напоминания на определенную дату и время.
+// Например, чтобы создать напоминание на 15 июня 2023 года в 15:30 с текстом “Позвонить маме”, напишите “/remindday 15.06.2023 15:30 Позвонить маме”.
+
+bot.command('remindday', (ctx) => {
+    const [date, time, ...text] = ctx.message.text.split('/remindday ')[1].split(' ');
+    const [day, month, year] = date.split('.');
+    const [hours, minutes] = time.split(':');
+
+    const now = new Date();
+    const remindTime = new Date(year, month - 1, day, hours, minutes);
+
+    if (remindTime < now) {
+        ctx.reply('Вы указали прошедшее время. Пожалуйста, укажите будущее время.');
+        return;
+    }
+
+    setTimeout(() => {
+        ctx.reply(`Напоминаю: ${text.join(' ')}`);
+    }, remindTime - now);
+
+    ctx.reply('Отлично! Я обязательно напомню :)');
+});
+
+// Теперь у вас есть команда /img для отправки случайного изображения
+
+bot.command('img', (ctx) => {
+    const images = [
+        'https://placehold.co/200x300.png',
+        'https://placehold.co/300x200.png',
+        'https://placehold.co/200x200.png'
+    ];
+    const randomIndex = Math.floor(Math.random() * images.length);
+    // ctx.replyWithPhoto(images[randomIndex], { caption: "cat photo" });
+    ctx.replyWithPhoto({url: images[randomIndex]});
+});
+
+/*bot.on('text', (ctx) => {
+    const messageText = ctx.message.text;
+    ctx.reply(`Вы написали: ${messageText}`)
+});*/
+
+bot.launch();
