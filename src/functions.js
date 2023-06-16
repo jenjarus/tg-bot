@@ -16,8 +16,9 @@ async function getBeerInfo(ctx) {
         const randomIndex = Math.floor(Math.random() * 20);
         const beerData = await getApiBeer(randomIndex);
         const volumeData = beerData?.volume?.value ? `Объем: ${beerData.volume.value} л\n` : ``;
+        const msg = `Название: ${beerData.name}\n${volumeData}Цена: ${beerData.ibu} $`;
 
-        await ctx.reply(`Название: ${beerData.name}\n${volumeData}Цена: ${beerData.ibu} $`, Markup.inlineKeyboard([
+        await ctx.reply(msg, Markup.inlineKeyboard([
             Markup.button.url('Перейти к карточке товара', `https://jenjarus.github.io/React-Shop/catalog/${randomIndex}`)
         ]));
     } catch (err) {
@@ -53,6 +54,5 @@ async function getApiExchange(currency) {
 
     return data.rates.RUB;
 }
-
 
 export {getPredict, getBeerInfo, getExchangeInfo};
