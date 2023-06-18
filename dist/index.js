@@ -1,17 +1,18 @@
-import 'dotenv/config';
-import {Telegraf, Markup} from 'telegraf';
-import {getPredict, getBeerInfo, getExchangeInfo} from './functions.js';
-
-const bot = new Telegraf(process.env.TOKEN_KEY);
-
-const objMenu = {
-    githubLink: '🛠️ Открыть Github',
-    googleLink: '📄 Открыть Google',
-    beerLink: '🍻 Открыть магазин пива',
-    beerRandomInfo: '🍺 Показать случайное пиво',
-    predict: '🔮 Предсказание',
-    exchange: '💵 Курс валют',
-};
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+require("dotenv/config");
+const telegraf_1 = require("telegraf");
+const functions_1 = require("./functions");
+const bot = new telegraf_1.Telegraf(process.env.TOKEN_KEY);
+var objMenu;
+(function (objMenu) {
+    objMenu["githubLink"] = "\uD83D\uDEE0\uFE0F \u041E\u0442\u043A\u0440\u044B\u0442\u044C Github";
+    objMenu["googleLink"] = "\uD83D\uDCC4 \u041E\u0442\u043A\u0440\u044B\u0442\u044C Google";
+    objMenu["beerLink"] = "\uD83C\uDF7B \u041E\u0442\u043A\u0440\u044B\u0442\u044C \u043C\u0430\u0433\u0430\u0437\u0438\u043D \u043F\u0438\u0432\u0430";
+    objMenu["beerRandomInfo"] = "\uD83C\uDF7A \u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u0441\u043B\u0443\u0447\u0430\u0439\u043D\u043E\u0435 \u043F\u0438\u0432\u043E";
+    objMenu["predict"] = "\uD83D\uDD2E \u041F\u0440\u0435\u0434\u0441\u043A\u0430\u0437\u0430\u043D\u0438\u0435";
+    objMenu["exchange"] = "\uD83D\uDCB5 \u041A\u0443\u0440\u0441 \u0432\u0430\u043B\u044E\u0442";
+})(objMenu || (objMenu = {}));
 const objHears = {
     github: {
         name: 'Github',
@@ -70,7 +71,6 @@ const arrCommandsMenu = [
         description: objCommands.remind.description,
     }
 ];
-
 bot.start((ctx) => {
     const chatName = ctx.message.from.first_name ? ctx.message.from.first_name : ctx.message.from.username;
     const startMsg = `Привет, ${chatName}! Я телеграм-бот. Я могу отправлять случайные изображения и многое другое!
@@ -90,69 +90,54 @@ bot.start((ctx) => {
         [objMenu.beerRandomInfo],
         [objMenu.predict, objMenu.exchange]
     ];
-
     /*ctx.reply(startMsg, Markup.keyboard(arrMenuKeyboard).oneTime().resize());*/
-    ctx.reply(startMsg, Markup.keyboard(arrMenuKeyboard));
+    ctx.reply(startMsg, telegraf_1.Markup.keyboard(arrMenuKeyboard));
 });
-
 bot.help((ctx) => ctx.reply('Это помощь.'));
-
 bot.telegram.setMyCommands(arrCommandsMenu);
-
 bot.hears(objMenu.githubLink, (ctx) => {
-    ctx.reply('Выберите вариант', Markup.inlineKeyboard([
+    ctx.reply('Выберите вариант', telegraf_1.Markup.inlineKeyboard([
         [
-            Markup.button.url(objHears.github.name, objHears.github.link),
+            telegraf_1.Markup.button.url(objHears.github.name, objHears.github.link),
         ],
         [
-            Markup.button.url(objHears.myGithub.name, objHears.myGithub.link),
+            telegraf_1.Markup.button.url(objHears.myGithub.name, objHears.myGithub.link),
         ]
-    ]))
+    ]));
 });
-
 bot.hears(objMenu.googleLink, (ctx) => {
-    ctx.reply('Открыть Google', Markup.inlineKeyboard([
-        Markup.button.url(objHears.google.name, objHears.google.link)
-    ]))
+    ctx.reply('Открыть Google', telegraf_1.Markup.inlineKeyboard([
+        telegraf_1.Markup.button.url(objHears.google.name, objHears.google.link)
+    ]));
 });
-
 bot.hears(objMenu.beerLink, (ctx) => {
-    ctx.reply('Открыть магазин пива', Markup.inlineKeyboard([
-        Markup.button.url(objHears.beer.name, objHears.beer.link)
-    ]))
+    ctx.reply('Открыть магазин пива', telegraf_1.Markup.inlineKeyboard([
+        telegraf_1.Markup.button.url(objHears.beer.name, objHears.beer.link)
+    ]));
 });
-
 bot.hears(objMenu.beerRandomInfo, (ctx) => {
-    getBeerInfo(ctx);
+    (0, functions_1.getBeerInfo)(ctx);
 });
-
 bot.hears(objMenu.predict, (ctx) => {
-    getPredict(ctx);
+    (0, functions_1.getPredict)(ctx);
 });
-
 bot.hears(objMenu.exchange, (ctx) => {
-    getExchangeInfo(ctx);
+    (0, functions_1.getExchangeInfo)(ctx);
 });
-
 bot.command(objCommands.remind.command, (ctx) => {
     const [time, ...text] = ctx.message.text.split(`/${objCommands.remind.command} `)[1].split(' ');
     const [hours, minutes] = time.split(':');
-
     const now = new Date();
-    const remindTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
-
+    const remindTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), Number(hours), Number(minutes));
     if (remindTime < now) {
         ctx.reply('Вы указали прошедшее время. Пожалуйста, укажите будущее время.');
         return;
     }
-
     setTimeout(() => {
         ctx.reply(`Напоминаю: ${text.join(' ')}`);
-    }, remindTime - now);
-
+    }, remindTime.getTime() - now.getTime());
     ctx.reply('Отлично! Я обязательно напомню :)');
 });
-
 /*bot.command('reminddata', (ctx) => {
     const [date, time, ...text] = ctx.message.text.split('/reminddata ')[1].split(' ');
     const [day, month, year] = date.split('.');
@@ -172,7 +157,6 @@ bot.command(objCommands.remind.command, (ctx) => {
 
     ctx.reply('Отлично! Я обязательно напомню :)');
 });*/
-
 bot.command(objCommands.img.command, (ctx) => {
     const images = [
         'https://placehold.co/200x300.png',
@@ -180,17 +164,13 @@ bot.command(objCommands.img.command, (ctx) => {
         'https://placehold.co/200x200.png'
     ];
     const randomIndex = Math.floor(Math.random() * images.length);
-
     // ctx.replyWithPhoto(images[randomIndex], { caption: "cat photo" });
-    ctx.replyWithPhoto({url: images[randomIndex]});
+    ctx.replyWithPhoto({ url: images[randomIndex] });
 });
-
 bot.command(objCommands.predict.command, (ctx) => {
-    getPredict(ctx);
+    (0, functions_1.getPredict)(ctx);
 });
-
 bot.command(objCommands.exchange.command, (ctx) => {
-    getExchangeInfo(ctx);
+    (0, functions_1.getExchangeInfo)(ctx);
 });
-
 bot.launch();
