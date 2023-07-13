@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import {Telegraf, Markup} from 'telegraf';
+import {Telegraf, Markup, Context} from 'telegraf';
 import {getPredict, getBeerInfo, getExchangeInfo} from './functions';
 import {IArrCommandsMenu, IObjCommands, IObjHears} from './types';
 
@@ -72,8 +72,8 @@ const arrCommandsMenu: IArrCommandsMenu[] = [
     }
 ];
 
-bot.start((ctx) => {
-    const chatName = ctx.message.from.first_name ? ctx.message.from.first_name : ctx.message.from.username;
+bot.start((ctx: Context): void => {
+    const chatName: string | undefined = ctx?.message?.from?.first_name ? ctx?.message?.from?.first_name : ctx?.message?.from?.username;
     const startMsg: string = `Привет, ${chatName}! Я телеграм-бот. Я могу отправлять случайные изображения и многое другое!
 
 Чтобы получить ответ на загаданный вопрос, напишите /${objCommands.predict.command}.
@@ -96,11 +96,11 @@ bot.start((ctx) => {
     ctx.reply(startMsg, Markup.keyboard(arrMenuKeyboard));
 });
 
-bot.help((ctx) => ctx.reply('Это помощь.'));
+bot.help((ctx: Context): void => {ctx.reply('Это помощь.')});
 
 bot.telegram.setMyCommands(arrCommandsMenu);
 
-bot.hears(objMenu.githubLink, (ctx) => {
+bot.hears(objMenu.githubLink, (ctx: Context): void => {
     ctx.reply('Выберите вариант', Markup.inlineKeyboard([
         [
             Markup.button.url(objHears.github.name, objHears.github.link),
@@ -111,31 +111,31 @@ bot.hears(objMenu.githubLink, (ctx) => {
     ]))
 });
 
-bot.hears(objMenu.googleLink, (ctx) => {
+bot.hears(objMenu.googleLink, (ctx: Context): void => {
     ctx.reply('Открыть Google', Markup.inlineKeyboard([
         Markup.button.url(objHears.google.name, objHears.google.link)
     ]))
 });
 
-bot.hears(objMenu.beerLink, (ctx) => {
+bot.hears(objMenu.beerLink, (ctx: Context): void => {
     ctx.reply('Открыть магазин пива', Markup.inlineKeyboard([
         Markup.button.url(objHears.beer.name, objHears.beer.link)
     ]))
 });
 
-bot.hears(objMenu.beerRandomInfo, (ctx) => {
+bot.hears(objMenu.beerRandomInfo, (ctx: Context): void => {
     getBeerInfo(ctx);
 });
 
-bot.hears(objMenu.predict, (ctx) => {
+bot.hears(objMenu.predict, (ctx: Context): void => {
     getPredict(ctx);
 });
 
-bot.hears(objMenu.exchange, (ctx) => {
+bot.hears(objMenu.exchange, (ctx: Context): void => {
     getExchangeInfo(ctx);
 });
 
-bot.command(objCommands.remind.command, (ctx) => {
+bot.command(objCommands.remind.command, (ctx): void => {
     const [time, ...text]: string[] = ctx.message.text.split(`/${objCommands.remind.command} `)[1].split(' ');
     const [hours, minutes]: string[] = time.split(':');
 
@@ -147,7 +147,7 @@ bot.command(objCommands.remind.command, (ctx) => {
         return;
     }
 
-    setTimeout(() => {
+    setTimeout((): void => {
         ctx.reply(`Напоминаю: ${text.join(' ')}`);
     }, remindTime.getTime() - now.getTime());
 
@@ -174,7 +174,7 @@ bot.command(objCommands.remind.command, (ctx) => {
     ctx.reply('Отлично! Я обязательно напомню :)');
 });*/
 
-bot.command(objCommands.img.command, (ctx) => {
+bot.command(objCommands.img.command, (ctx: Context): void => {
     const images: string[] = [
         'https://placehold.co/200x300.png',
         'https://placehold.co/300x200.png',
@@ -186,11 +186,11 @@ bot.command(objCommands.img.command, (ctx) => {
     ctx.replyWithPhoto({url: images[randomIndex]});
 });
 
-bot.command(objCommands.predict.command, (ctx) => {
+bot.command(objCommands.predict.command, (ctx: Context): void => {
     getPredict(ctx);
 });
 
-bot.command(objCommands.exchange.command, (ctx) => {
+bot.command(objCommands.exchange.command, (ctx: Context):void => {
     getExchangeInfo(ctx);
 });
 

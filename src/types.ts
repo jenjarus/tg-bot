@@ -6,10 +6,7 @@ interface IObjHears {
 }
 
 interface IObjCommands {
-    [key: string]: {
-        command: string,
-        description: string
-    }
+    [key: string]: IArrCommandsMenu
 }
 
 interface IArrCommandsMenu {

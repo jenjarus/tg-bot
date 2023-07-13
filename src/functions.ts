@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import {Context, Markup} from 'telegraf';
 
-function getPredict(ctx: Context) {
+function getPredict(ctx: Context): void {
     const answer: string[] = [
         'Да',
         'Нет',
@@ -11,12 +11,12 @@ function getPredict(ctx: Context) {
     ctx.reply(answer[randomIndex]);
 }
 
-async function getBeerInfo(ctx: Context) {
+async function getBeerInfo(ctx: Context): Promise<void> {
     try {
         const randomIndex: number = Math.floor(Math.random() * 20);
         const beerData = await getApiBeer(randomIndex);
         const volumeData: string = beerData?.volume?.value ? `Объем: ${beerData.volume.value} л\n` : ``;
-        const msg: string = `Название: ${beerData.name}\n${volumeData}Цена: ${beerData.ibu} $`;
+        const msg: string = `Название: ${beerData?.name}\n${volumeData}Цена: ${beerData?.ibu} $`;
 
         await ctx.reply(msg, Markup.inlineKeyboard([
             Markup.button.url('Перейти к карточке товара', `https://jenjarus.github.io/React-Shop/catalog/${randomIndex}`)
@@ -34,7 +34,7 @@ async function getApiBeer(i: number) {
     return data[0];
 }
 
-async function getExchangeInfo(ctx: Context) {
+async function getExchangeInfo(ctx: Context): Promise<void> {
     try {
         const USD: string = await getApiExchange('USD');
         const EUR: string = await getApiExchange('EUR');

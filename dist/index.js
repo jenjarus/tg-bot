@@ -72,7 +72,8 @@ const arrCommandsMenu = [
     }
 ];
 bot.start((ctx) => {
-    const chatName = ctx.message.from.first_name ? ctx.message.from.first_name : ctx.message.from.username;
+    var _a, _b, _c, _d, _e, _f;
+    const chatName = ((_b = (_a = ctx === null || ctx === void 0 ? void 0 : ctx.message) === null || _a === void 0 ? void 0 : _a.from) === null || _b === void 0 ? void 0 : _b.first_name) ? (_d = (_c = ctx === null || ctx === void 0 ? void 0 : ctx.message) === null || _c === void 0 ? void 0 : _c.from) === null || _d === void 0 ? void 0 : _d.first_name : (_f = (_e = ctx === null || ctx === void 0 ? void 0 : ctx.message) === null || _e === void 0 ? void 0 : _e.from) === null || _f === void 0 ? void 0 : _f.username;
     const startMsg = `Привет, ${chatName}! Я телеграм-бот. Я могу отправлять случайные изображения и многое другое!
 
 Чтобы получить ответ на загаданный вопрос, напишите /${objCommands.predict.command}.
@@ -93,7 +94,7 @@ bot.start((ctx) => {
     /*ctx.reply(startMsg, Markup.keyboard(arrMenuKeyboard).oneTime().resize());*/
     ctx.reply(startMsg, telegraf_1.Markup.keyboard(arrMenuKeyboard));
 });
-bot.help((ctx) => ctx.reply('Это помощь.'));
+bot.help((ctx) => { ctx.reply('Это помощь.'); });
 bot.telegram.setMyCommands(arrCommandsMenu);
 bot.hears(objMenu.githubLink, (ctx) => {
     ctx.reply('Выберите вариант', telegraf_1.Markup.inlineKeyboard([

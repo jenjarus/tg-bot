@@ -32,7 +32,7 @@ function getBeerInfo(ctx) {
             const randomIndex = Math.floor(Math.random() * 20);
             const beerData = yield getApiBeer(randomIndex);
             const volumeData = ((_a = beerData === null || beerData === void 0 ? void 0 : beerData.volume) === null || _a === void 0 ? void 0 : _a.value) ? `Объем: ${beerData.volume.value} л\n` : ``;
-            const msg = `Название: ${beerData.name}\n${volumeData}Цена: ${beerData.ibu} $`;
+            const msg = `Название: ${beerData === null || beerData === void 0 ? void 0 : beerData.name}\n${volumeData}Цена: ${beerData === null || beerData === void 0 ? void 0 : beerData.ibu} $`;
             yield ctx.reply(msg, telegraf_1.Markup.inlineKeyboard([
                 telegraf_1.Markup.button.url('Перейти к карточке товара', `https://jenjarus.github.io/React-Shop/catalog/${randomIndex}`)
             ]));
