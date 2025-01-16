@@ -1,9 +1,9 @@
 {
   "name": "telegram-bot",
   "version": "1.2.0",
-  "main": "dist/index.js",
+  "main": "functions/index/index.js",
   "scripts": {
-    "start": "node dist/index.js"
+    "start": "node functions/index/index.js"
   },
   "keywords": [],
   "author": "",

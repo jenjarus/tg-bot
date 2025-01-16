@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 require("dotenv/config");
 const telegraf_1 = require("telegraf");
@@ -27,7 +36,7 @@ const objHears = {
         link: 'https://google.com/',
     },
     beer: {
-        name: 'Магазин пива (не работает - отключен api)',
+        name: 'Магазин пива',
         link: 'https://jenjarus.github.io/React-Shop/',
     }
 };
@@ -36,13 +45,13 @@ const objCommands = {
         command: 'img',
         description: 'Отправка случайного изображения',
     },
-    exchange: {
-        command: 'exchange',
-        description: 'Получить текущий курс валют',
-    },
     predict: {
         command: 'predict',
         description: 'Предсказание (да или нет)',
+    },
+    exchange: {
+        command: 'exchange',
+        description: 'Получить текущий курс валют',
     },
     remind: {
         command: 'remind',
@@ -59,17 +68,13 @@ const arrCommandsMenu = [
         description: objCommands.img.description,
     },
     {
-        command: objCommands.exchange.command,
-        description: objCommands.exchange.description,
-    },
-    {
         command: objCommands.predict.command,
         description: objCommands.predict.description,
     },
     {
-        command: objCommands.remind.command,
-        description: objCommands.remind.description,
-    }
+        command: objCommands.exchange.command,
+        description: objCommands.exchange.description,
+    },
 ];
 bot.start((ctx) => {
     var _a, _b, _c, _d, _e, _f;
@@ -91,7 +96,6 @@ bot.start((ctx) => {
         [objMenu.beerRandomInfo],
         [objMenu.predict, objMenu.exchange]
     ];
-    /*ctx.reply(startMsg, Markup.keyboard(arrMenuKeyboard).oneTime().resize());*/
     ctx.reply(startMsg, telegraf_1.Markup.keyboard(arrMenuKeyboard));
 });
 bot.help((ctx) => { ctx.reply('Это помощь.'); });
@@ -112,13 +116,12 @@ bot.hears(objMenu.googleLink, (ctx) => {
     ]));
 });
 bot.hears(objMenu.beerLink, (ctx) => {
-    ctx.reply('Открыть магазин пива', telegraf_1.Markup.inlineKeyboard([
+    ctx.reply('Открыть магазин пива (не работает - api больше не доступно)', telegraf_1.Markup.inlineKeyboard([
         telegraf_1.Markup.button.url(objHears.beer.name, objHears.beer.link)
     ]));
 });
 bot.hears(objMenu.beerRandomInfo, (ctx) => {
-    /*getBeerInfo(ctx);*/
-    ctx.reply('Извините, но не работает - отключен api');
+    ctx.reply('Извините, но не работает - api больше не доступно');
 });
 bot.hears(objMenu.predict, (ctx) => {
     (0, functions_1.getPredict)(ctx);
@@ -127,38 +130,24 @@ bot.hears(objMenu.exchange, (ctx) => {
     (0, functions_1.getExchangeInfo)(ctx);
 });
 bot.command(objCommands.remind.command, (ctx) => {
-    const [time, ...text] = ctx.message.text.split(`/${objCommands.remind.command} `)[1].split(' ');
-    const [hours, minutes] = time.split(':');
-    const now = new Date();
-    const remindTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), Number(hours), Number(minutes));
-    if (remindTime < now) {
-        ctx.reply('Вы указали прошедшее время. Пожалуйста, укажите будущее время.');
-        return;
+    try {
+        const [time, ...text] = ctx.message.text.split(`/${objCommands.remind.command} `)[1].split(' ');
+        const [hours, minutes] = time.split(':');
+        const now = new Date();
+        const remindTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), Number(hours), Number(minutes));
+        if (remindTime < now) {
+            ctx.reply('Вы указали прошедшее время. Пожалуйста, укажите будущее время.');
+            return;
+        }
+        setTimeout(() => {
+            ctx.reply(`Напоминаю: ${text.join(' ')}`);
+        }, remindTime.getTime() - now.getTime());
+        ctx.reply('Отлично! Я обязательно напомню :)');
     }
-    setTimeout(() => {
-        ctx.reply(`Напоминаю: ${text.join(' ')}`);
-    }, remindTime.getTime() - now.getTime());
-    ctx.reply('Отлично! Я обязательно напомню :)');
+    catch (e) {
+        ctx.reply('Не правильно заполнено, попробуйте снова :(');
+    }
 });
-/*bot.command('reminddata', (ctx) => {
-    const [date, time, ...text] = ctx.message.text.split('/reminddata ')[1].split(' ');
-    const [day, month, year] = date.split('.');
-    const [hours, minutes] = time.split(':');
-
-    const now = new Date();
-    const remindTime = new Date(year, month - 1, day, hours, minutes);
-
-    if (remindTime < now) {
-        ctx.reply('Вы указали прошедшее время. Пожалуйста, укажите будущее время.');
-        return;
-    }
-
-    setTimeout(() => {
-        ctx.reply(`Напоминаю: ${text.join(' ')}`);
-    }, remindTime - now);
-
-    ctx.reply('Отлично! Я обязательно напомню :)');
-});*/
 bot.command(objCommands.img.command, (ctx) => {
     const images = [
         'https://placehold.co/200x300.png',
@@ -166,7 +155,6 @@ bot.command(objCommands.img.command, (ctx) => {
         'https://placehold.co/200x200.png'
     ];
     const randomIndex = Math.floor(Math.random() * images.length);
-    // ctx.replyWithPhoto(images[randomIndex], { caption: "cat photo" });
     ctx.replyWithPhoto({ url: images[randomIndex] });
 });
 bot.command(objCommands.predict.command, (ctx) => {
@@ -175,4 +163,13 @@ bot.command(objCommands.predict.command, (ctx) => {
 bot.command(objCommands.exchange.command, (ctx) => {
     (0, functions_1.getExchangeInfo)(ctx);
 });
-bot.launch();
+exports.handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield bot.handleUpdate(JSON.parse(event.body));
+        return { statusCode: 200, body: "" };
+    }
+    catch (e) {
+        console.error("error in handler:", e);
+        return { statusCode: 400, body: "This endpoint is meant for index and telegram communication" };
+    }
+});

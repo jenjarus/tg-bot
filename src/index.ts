@@ -3,6 +3,8 @@ import {Telegraf, Markup, Context} from 'telegraf';
 import {getPredict, getBeerInfo, getExchangeInfo} from './functions';
 import {IArrCommandsMenu, IObjCommands, IObjHears} from './types';
 
+// TODO На хостинге netlify плохо (почти полностью) не работаю асинхронные запрпосы
+
 const bot = new Telegraf(<string>process.env.TOKEN_KEY);
 
 enum objMenu {
@@ -27,7 +29,7 @@ const objHears: IObjHears = {
         link: 'https://google.com/',
     },
     beer: {
-        name: 'Магазин пива (не работает - отключен api)',
+        name: 'Магазин пива',
         link: 'https://jenjarus.github.io/React-Shop/',
     }
 };
@@ -36,13 +38,13 @@ const objCommands: IObjCommands = {
         command: 'img',
         description: 'Отправка случайного изображения',
     },
-    exchange: {
-        command: 'exchange',
-        description: 'Получить текущий курс валют',
-    },
     predict: {
         command: 'predict',
         description: 'Предсказание (да или нет)',
+    },
+    exchange: {
+        command: 'exchange',
+        description: 'Получить текущий курс валют',
     },
     remind: {
         command: 'remind',
@@ -59,17 +61,13 @@ const arrCommandsMenu: IArrCommandsMenu[] = [
         description: objCommands.img.description,
     },
     {
-        command: objCommands.exchange.command,
-        description: objCommands.exchange.description,
-    },
-    {
         command: objCommands.predict.command,
         description: objCommands.predict.description,
     },
     {
-        command: objCommands.remind.command,
-        description: objCommands.remind.description,
-    }
+        command: objCommands.exchange.command,
+        description: objCommands.exchange.description,
+    },
 ];
 
 bot.start((ctx: Context): void => {
@@ -118,14 +116,14 @@ bot.hears(objMenu.googleLink, (ctx: Context): void => {
 });
 
 bot.hears(objMenu.beerLink, (ctx: Context): void => {
-    ctx.reply('Открыть магазин пива', Markup.inlineKeyboard([
+    ctx.reply('Открыть магазин пива (не работает - api больше не доступно)', Markup.inlineKeyboard([
         Markup.button.url(objHears.beer.name, objHears.beer.link)
     ]))
 });
 
 bot.hears(objMenu.beerRandomInfo, (ctx: Context): void => {
     /*getBeerInfo(ctx);*/
-    ctx.reply('Извините, но не работает - отключен api');
+    ctx.reply('Извините, но не работает - api больше не доступно');
 });
 
 bot.hears(objMenu.predict, (ctx: Context): void => {
@@ -137,22 +135,26 @@ bot.hears(objMenu.exchange, (ctx: Context): void => {
 });
 
 bot.command(objCommands.remind.command, (ctx): void => {
-    const [time, ...text]: string[] = ctx.message.text.split(`/${objCommands.remind.command} `)[1].split(' ');
-    const [hours, minutes]: string[] = time.split(':');
+    try {
+        const [time, ...text]: string[] = ctx.message.text.split(`/${objCommands.remind.command} `)[1].split(' ');
+        const [hours, minutes]: string[] = time.split(':');
 
-    const now: Date = new Date();
-    const remindTime: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), Number(hours), Number(minutes));
+        const now: Date = new Date();
+        const remindTime: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), Number(hours), Number(minutes));
 
-    if (remindTime < now) {
-        ctx.reply('Вы указали прошедшее время. Пожалуйста, укажите будущее время.');
-        return;
+        if (remindTime < now) {
+            ctx.reply('Вы указали прошедшее время. Пожалуйста, укажите будущее время.');
+            return;
+        }
+
+        setTimeout((): void => {
+            ctx.reply(`Напоминаю: ${text.join(' ')}`);
+        }, remindTime.getTime() - now.getTime());
+
+        ctx.reply('Отлично! Я обязательно напомню :)');
+    } catch (e) {
+        ctx.reply('Не правильно заполнено, попробуйте снова :(');
     }
-
-    setTimeout((): void => {
-        ctx.reply(`Напоминаю: ${text.join(' ')}`);
-    }, remindTime.getTime() - now.getTime());
-
-    ctx.reply('Отлично! Я обязательно напомню :)');
 });
 
 /*bot.command('reminddata', (ctx) => {
@@ -195,4 +197,15 @@ bot.command(objCommands.exchange.command, (ctx: Context):void => {
     getExchangeInfo(ctx);
 });
 
-bot.launch();
+// Для работы локально, включить bot.launch и отключить exports.handler, для работы на хостинге, наоборот
+//bot.launch();
+
+exports.handler = async (event: { body: string; }) => {
+    try {
+        await bot.handleUpdate(JSON.parse(event.body))
+        return { statusCode: 200, body: "" }
+    } catch (e) {
+        console.error("error in handler:", e)
+        return { statusCode: 400, body: "This endpoint is meant for index and telegram communication" }
+    }
+}
