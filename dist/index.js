@@ -8,8 +8,8 @@ var objMenu;
 (function (objMenu) {
     objMenu["githubLink"] = "\uD83D\uDEE0\uFE0F \u041E\u0442\u043A\u0440\u044B\u0442\u044C Github";
     objMenu["googleLink"] = "\uD83D\uDCC4 \u041E\u0442\u043A\u0440\u044B\u0442\u044C Google";
-    objMenu["beerLink"] = "\uD83C\uDF7B \u041E\u0442\u043A\u0440\u044B\u0442\u044C \u043C\u0430\u0433\u0430\u0437\u0438\u043D \u043F\u0438\u0432\u0430";
-    objMenu["beerRandomInfo"] = "\uD83C\uDF7A \u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u0441\u043B\u0443\u0447\u0430\u0439\u043D\u043E\u0435 \u043F\u0438\u0432\u043E";
+    objMenu["beerLink"] = "\uD83C\uDF7B \u041E\u0442\u043A\u0440\u044B\u0442\u044C \u043C\u0430\u0433\u0430\u0437\u0438\u043D \u043F\u0438\u0432\u0430 (\u043D\u0435 \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442)";
+    objMenu["beerRandomInfo"] = "\uD83C\uDF7A \u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u0441\u043B\u0443\u0447\u0430\u0439\u043D\u043E\u0435 \u043F\u0438\u0432\u043E (\u043D\u0435 \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442)";
     objMenu["predict"] = "\uD83D\uDD2E \u041F\u0440\u0435\u0434\u0441\u043A\u0430\u0437\u0430\u043D\u0438\u0435";
     objMenu["exchange"] = "\uD83D\uDCB5 \u041A\u0443\u0440\u0441 \u0432\u0430\u043B\u044E\u0442";
 })(objMenu || (objMenu = {}));
@@ -27,7 +27,7 @@ const objHears = {
         link: 'https://google.com/',
     },
     beer: {
-        name: 'Магазин пива',
+        name: 'Магазин пива (не работает - отключен api)',
         link: 'https://jenjarus.github.io/React-Shop/',
     }
 };
@@ -117,7 +117,8 @@ bot.hears(objMenu.beerLink, (ctx) => {
     ]));
 });
 bot.hears(objMenu.beerRandomInfo, (ctx) => {
-    (0, functions_1.getBeerInfo)(ctx);
+    /*getBeerInfo(ctx);*/
+    ctx.reply('Извините, но не работает - отключен api');
 });
 bot.hears(objMenu.predict, (ctx) => {
     (0, functions_1.getPredict)(ctx);

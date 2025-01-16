@@ -8,8 +8,8 @@ const bot = new Telegraf(<string>process.env.TOKEN_KEY);
 enum objMenu {
     githubLink = '🛠️ Открыть Github',
     googleLink = '📄 Открыть Google',
-    beerLink = '🍻 Открыть магазин пива',
-    beerRandomInfo = '🍺 Показать случайное пиво',
+    beerLink = '🍻 Открыть магазин пива (не работает)',
+    beerRandomInfo = '🍺 Показать случайное пиво (не работает)',
     predict = '🔮 Предсказание',
     exchange = '💵 Курс валют',
 }
@@ -27,7 +27,7 @@ const objHears: IObjHears = {
         link: 'https://google.com/',
     },
     beer: {
-        name: 'Магазин пива',
+        name: 'Магазин пива (не работает - отключен api)',
         link: 'https://jenjarus.github.io/React-Shop/',
     }
 };
@@ -124,7 +124,8 @@ bot.hears(objMenu.beerLink, (ctx: Context): void => {
 });
 
 bot.hears(objMenu.beerRandomInfo, (ctx: Context): void => {
-    getBeerInfo(ctx);
+    /*getBeerInfo(ctx);*/
+    ctx.reply('Извините, но не работает - отключен api');
 });
 
 bot.hears(objMenu.predict, (ctx: Context): void => {

@@ -19,7 +19,6 @@ function getPredict(ctx) {
     const answer = [
         'Да',
         'Нет',
-        'Хм, попробуй еще раз'
     ];
     const randomIndex = Math.floor(Math.random() * answer.length);
     ctx.reply(answer[randomIndex]);

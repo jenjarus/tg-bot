@@ -5,7 +5,6 @@ function getPredict(ctx: Context): void {
     const answer: string[] = [
         'Да',
         'Нет',
-        'Хм, попробуй еще раз'
     ];
     const randomIndex: number = Math.floor(Math.random() * answer.length);
     ctx.reply(answer[randomIndex]);
