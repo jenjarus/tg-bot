@@ -28,7 +28,7 @@ function getBeerInfo(ctx) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const randomIndex = Math.floor(Math.random() * 20);
+            const randomIndex = Math.floor(Math.random() * 30);
             const beerData = yield getApiBeer(randomIndex);
             const volumeData = ((_a = beerData === null || beerData === void 0 ? void 0 : beerData.volume) === null || _a === void 0 ? void 0 : _a.value) ? `Объем: ${beerData.volume.value} л\n` : ``;
             const msg = `Название: ${beerData === null || beerData === void 0 ? void 0 : beerData.name}\n${volumeData}Цена: ${beerData === null || beerData === void 0 ? void 0 : beerData.ibu} $`;
@@ -44,10 +44,10 @@ function getBeerInfo(ctx) {
 exports.getBeerInfo = getBeerInfo;
 function getApiBeer(i) {
     return __awaiter(this, void 0, void 0, function* () {
-        const url = `https://api.punkapi.com/v2/beers/${i}`;
+        const url = `https://punkapi.online/v3/beers/${i}`;
         const apiResponse = yield (0, node_fetch_1.default)(url);
         const data = yield apiResponse.json();
-        return data[0];
+        return data;
     });
 }
 function getExchangeInfo(ctx) {

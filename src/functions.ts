@@ -12,7 +12,7 @@ function getPredict(ctx: Context): void {
 
 async function getBeerInfo(ctx: Context): Promise<void> {
     try {
-        const randomIndex: number = Math.floor(Math.random() * 20);
+        const randomIndex: number = Math.floor(Math.random() * 30);
         const beerData = await getApiBeer(randomIndex);
         const volumeData: string = beerData?.volume?.value ? `Объем: ${beerData.volume.value} л\n` : ``;
         const msg: string = `Название: ${beerData?.name}\n${volumeData}Цена: ${beerData?.ibu} $`;
@@ -26,11 +26,11 @@ async function getBeerInfo(ctx: Context): Promise<void> {
 }
 
 async function getApiBeer(i: number) {
-    const url: string = `https://api.punkapi.com/v2/beers/${i}`;
+    const url: string = `https://punkapi.online/v3/beers/${i}`;
     const apiResponse = await fetch(url);
     const data = await apiResponse.json();
 
-    return data[0];
+    return data;
 }
 
 async function getExchangeInfo(ctx: Context): Promise<void> {
